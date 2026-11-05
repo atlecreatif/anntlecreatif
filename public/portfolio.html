@@ -142,9 +142,6 @@ section{display:flex;flex-direction:column;gap:26px;scroll-margin-top:24px}
 .ctab h2{max-width:920px;margin:0 auto;box-sizing:border-box;padding:clamp(16px,2.8vh,26px) clamp(18px,5vw,56px);font-family:var(--util);font-weight:700;font-size:clamp(22px,2.6vw,28px);line-height:1.2}
 .slide.tabbed .sl{padding-top:clamp(20px,3.5vh,36px)}
 .slide.tabbed .sl>:first-child{margin-top:0}
-.cs [data-lv]::before{content:attr(data-lv);display:inline-block;vertical-align:.2em;margin-right:8px;padding:1px 6px;border-radius:4px;background:#2f5fd0;color:#fff;
-  font:700 10px/1.4 var(--util);letter-spacing:.06em;text-transform:none;font-style:normal;white-space:nowrap}
-html.nonotes .cs [data-lv]::before{content:none;display:none}
 .slide::after{content:"";position:absolute;inset:0;border-radius:inherit;background:var(--ink);opacity:var(--dim,0);pointer-events:none}
 .slide.ink::after{background:#000}
 /* blocks rise into place as they scroll into view */
@@ -984,7 +981,7 @@ html.nonotes .cs [data-lv]::before{content:none;display:none}
     var fig=document.createElement('figure');fig.className='ccover';fig.innerHTML='<img alt="">';fig.firstChild.src=c.img;fig.firstChild.alt=c.t+' cover';
     SL=[];slide([head,fig],c.t,'intro');
     Array.prototype.forEach.call(body.querySelectorAll('.cpart'),function(s){var h2=s.querySelector('h2');slide([s],h2?h2.textContent:'',s.classList.contains('ink')?'ink':'')});
-    levels();reveal();csArt.scrollTop=0;SI=-1;depth();sync();if(RSO){RSO.disconnect();SL.forEach(function(s){RSO.observe(s)})}
+    reveal();csArt.scrollTop=0;SI=-1;depth();sync();if(RSO){RSO.disconnect();SL.forEach(function(s){RSO.observe(s)})}
     csOpen=j;try{history.replaceState(null,'','#'+c.id)}catch(e){}
   }
   var SL=[],SI=-1,csLab=document.getElementById('cslab'),csPrev=document.getElementById('csprev'),csFwd=document.getElementById('csfwd');
@@ -993,12 +990,6 @@ html.nonotes .cs [data-lv]::before{content:none;display:none}
     var w=document.createElement('div');w.className='sl';kids.forEach(function(k){w.appendChild(k)});s.appendChild(w);
     var h2=w.querySelector('.cpart>h2');if(h2){var tb=document.createElement('div');tb.className='ctab';tb.appendChild(h2);s.insertBefore(tb,w);s.classList.add('tabbed')}   // the title becomes a tab across the top
     csArt.appendChild(s);SL.push(s)}
-  // temporary: tag each text style with its level so the type scale can be reviewed (shown while Notes is on)
-  var LV=[['.cname','#'],['.ctab h2','##'],['.cpart h3','###'],['.pairs dt','####'],['.mods li b','####'],['.say','quote'],['.stats b','result'],
-    ['.clede','lede'],['.cpart>p:not(.say):not(.cap):not(.todo):not(.steps)','body'],['.cpart>ul>li','body'],
-    ['.cap','small'],['.cf figcaption','small'],['.pairs dd','small'],['.mods li span','small'],['.stats span','small'],['.steps span','small'],['.cfacts dd','small'],
-    ['.cmeta','label'],['.cfacts dt','label'],['.tbl thead th','label']];
-  function levels(){LV.forEach(function(l){Array.prototype.forEach.call(csArt.querySelectorAll(l[0]),function(e){if(!e.dataset.lv)e.dataset.lv=l[1]})})}
   var RVO=null;
   function reveal(){                                                                  // the top-level blocks of each slide fade up as they arrive
     var els=[];SL.forEach(function(s){Array.prototype.forEach.call(s.firstChild.children,function(k){
