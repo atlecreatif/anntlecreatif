@@ -122,7 +122,8 @@ section{display:flex;flex-direction:column;gap:26px;scroll-margin-top:24px}
 .cs{position:fixed;inset:0;z-index:50;background:var(--paper) var(--grain);overflow:hidden;visibility:hidden;display:flex;flex-direction:column}
 .csbar{position:relative;flex:none;width:100%;z-index:3;display:flex;justify-content:space-between;align-items:center;gap:6px 24px;flex-wrap:wrap;background:var(--paper) var(--grain);
   padding:calc(env(safe-area-inset-top,0px) + 10px) clamp(18px,5vw,48px) 10px;max-width:920px;margin-inline:auto;box-sizing:border-box}
-.cshome{background:none;border:0;padding:0;cursor:pointer;display:block}
+.home,.cshome{display:block;text-decoration:none}
+.home .logo{display:block}
 .cshome .logo{display:block}
 .csctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
 .pill{font:inherit;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);background:var(--paper);border:1px solid var(--ink);border-radius:999px;padding:8px 16px;cursor:pointer}
@@ -262,7 +263,7 @@ html.nonotes .cs [data-lv]::before{content:none;display:none}
 
 <div class="wrap">
   <header class="top" id="top">
-    <div class="logo" role="img" aria-label="le creatif"></div>
+    <a class="home" href="index.html" aria-label="le creatif, back to the intro"><span class="logo"></span></a>
     <nav aria-label="Sections"><a href="#work" class="cur" aria-current="page">Portfolio</a><a href="#approach" data-wave="approach">Approach</a><a href="#about" data-wave="about">About</a><a href="#contact" data-wave="contact">Contact</a></nav>
   </header>
 
@@ -311,7 +312,7 @@ html.nonotes .cs [data-lv]::before{content:none;display:none}
 <div class="cink" id="cink" aria-hidden="true"></div>
 <div class="cs" id="cs" role="dialog" aria-modal="true" aria-labelledby="csname">
   <div class="csbar">
-    <button type="button" class="cshome" id="cshome" aria-label="Back to portfolio"><span class="logo"></span></button>
+    <a class="cshome" id="cshome" href="index.html" aria-label="le creatif, back to the intro"><span class="logo"></span></a>
     <nav aria-label="Sections"><a href="#work" id="csclose">Portfolio</a><a href="#approach" data-cwave="approach">Approach</a><a href="#about" data-cwave="about">About</a><a href="#contact" data-cwave="contact">Contact</a></nav>
   </div>
   <button type="button" class="pill ghost csnotes" id="csnotes" aria-pressed="true" title="Show or hide the notes on what is still to add">Notes on</button>
@@ -1099,12 +1100,17 @@ html.nonotes .cs [data-lv]::before{content:none;display:none}
       csArt.focus({preventScroll:true});
     });
   }
+  // the case behaves like a modal: a click on the paper around the cards (not on a card, the header or a control) closes it.
+  // Only when the press also started there, so a text selection dragged off a card doesn't close it.
+  var csDown=null;cs.addEventListener('pointerdown',function(e){csDown=e.target});
+  function backdrop(el){return el===cs||el===csArt}
   cs.addEventListener('click',function(e){
+    if(backdrop(e.target)&&backdrop(csDown)&&csOpen>=0){closeCase();return}
     var w=e.target.closest('a[data-cwave]');
     if(w){e.preventDefault();closeCase();openWave(w.dataset.cwave,document.querySelector('.top a[data-wave="'+w.dataset.cwave+'"]'));return}
     var t=e.target.closest('button,#csclose');if(!t)return;if(t.id==='csclose')e.preventDefault();
     if(t.id==='csnext'){var r=t.getBoundingClientRect();nextCase(+t.dataset.j,e.clientX||r.left+r.width/2,e.clientY||r.top+r.height/2)}
-    else if(t.id==='csback'||t.id==='csclose'||t.id==='cshome')closeCase();
+    else if(t.id==='csback'||t.id==='csclose')closeCase();
     else if(t.id==='csnotes')notes(t.getAttribute('aria-pressed')!=='true')});
   addEventListener('keydown',function(e){if(e.key==='Escape'&&csOpen>=0)closeCase()});
   // notes on what's still to add: shown while drafting, hidden to preview the finished page
