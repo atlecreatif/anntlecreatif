@@ -343,7 +343,7 @@ body{background:var(--desk);color:var(--ink);font-family:var(--util);overflow-x:
     if(reduce){showFolio();return}
     zooming=true;pill.classList.add('go');pill.blur();
     // ink drop: 1.6s to black (push), 0.4s hold, 0.7s reveal, from the button
-    var D=1.6,HOLD=.4,REV=.7,r=pill.getBoundingClientRect(),w=innerWidth,h=innerHeight;
+    var D=1.6,HOLD=.15,REV=.7,r=pill.getBoundingClientRect(),w=innerWidth,h=innerHeight;
     var ox=r.left+r.width/2,oy=r.top+r.height/2,swapped=false;
     var maxR=Math.max(Math.hypot(ox,oy),Math.hypot(w-ox,oy),Math.hypot(ox,h-oy),Math.hypot(w-ox,h-oy))*1.2;
     function blob(R,ph){
@@ -359,7 +359,7 @@ body{background:var(--desk);color:var(--ink);font-family:var(--util);overflow-x:
       var el=(now-t0)/1000,a=cl(el/D),b=cl((el-D-HOLD)/REV);
       if(b<=0)flash.style.clipPath=a>=1?'none':'polygon('+blob(Math.max(r.height/2,(1-Math.pow(1-a,3))*maxR),a*5).join(',')+')';
       else{
-        if(!swapped){swapped=true;showFolio();return}
+        if(!swapped){swapped=true;try{sessionStorage.setItem('lc-ink',JSON.stringify({x:ox/w,y:oy/h}))}catch(e){}showFolio();return}
         var hole=blob((1-Math.pow(1-b,3))*maxR,4+b*4);
         ftext.style.opacity=1-seg(b,0,.3);
         flash.style.clipPath='polygon(evenodd,0px 0px,'+w+'px 0px,'+w+'px '+h+'px,0px '+h+'px,0px 0px,'+hole.join(',')+','+hole[0]+')';

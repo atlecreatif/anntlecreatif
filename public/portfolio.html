@@ -143,9 +143,6 @@ section{display:flex;flex-direction:column;gap:26px;scroll-margin-top:24px}
 .ctab h2{max-width:920px;margin:0 auto;box-sizing:border-box;padding:clamp(16px,2.8vh,26px) clamp(18px,5vw,56px);font-family:var(--util);font-weight:700;font-size:clamp(22px,2.6vw,28px);line-height:1.2}
 .slide.tabbed .sl{padding-top:clamp(20px,3.5vh,36px)}
 .slide.tabbed .sl>:first-child{margin-top:0}
-.cs [data-lv]::before{content:attr(data-lv);display:inline-block;vertical-align:.2em;margin-right:8px;padding:1px 6px;border-radius:4px;background:#2f5fd0;color:#fff;
-  font:700 10px/1.4 var(--util);letter-spacing:.06em;text-transform:none;font-style:normal;white-space:nowrap}
-html.nonotes .cs [data-lv]::before{content:none;display:none}
 .slide::after{content:"";position:absolute;inset:0;border-radius:inherit;background:var(--ink);opacity:var(--dim,0);pointer-events:none}
 .slide.ink::after{background:#000}
 /* blocks rise into place as they scroll into view */
@@ -259,7 +256,46 @@ html.nonotes .cs [data-lv]::before{content:none;display:none}
 .cpart>.phones{max-width:62ch!important;width:100%;margin-inline:auto;align-self:center}.phones .cf img{border-radius:14px}.cpart>.phones.sm{max-width:360px!important;grid-template-columns:repeat(2,minmax(0,1fr))}
 .csart .cname,.csart .stats b{line-height:.9}
 .cpart>.cf,.cpart>.tbl{max-width:62ch!important;width:100%;margin-inline:auto;align-self:center}
+/* hold the case stage back until the script has pinned it under the header, so it doesn't appear low and then jump up */
+.wpin{transition:opacity .35s ease}
+.pinwait .wpin{opacity:0;animation:pinshow 0s 3s forwards}   /* safety net: show it anyway after 3s */
+@keyframes pinshow{to{opacity:1}}
+/* arriving from the intro's ink drop: the page starts black and the ink opens up from the button's spot */
+.ink-in{position:fixed;inset:0;z-index:100;background:var(--ink);pointer-events:none;display:none}
+.inked .ink-in{display:block;animation:inkgone .4s 6s forwards}   /* safety net if the reveal never runs */
+@keyframes inkgone{to{opacity:0;visibility:hidden}}
+.ink-in span{position:absolute;transform:translate(-50%,-50%);font-family:var(--util);font-weight:700;font-size:17px;letter-spacing:.12em;color:var(--paper)}
 </style>
+<script>
+document.documentElement.classList.add('pinwait');
+(function(){
+  var o=null;try{o=JSON.parse(sessionStorage.getItem('lc-ink'));sessionStorage.removeItem('lc-ink')}catch(e){}
+  if(!o)return;
+  document.documentElement.classList.add('inked');
+  window.__inkReveal=function(){
+    var el=document.getElementById('inkin'),t=document.getElementById('inktext'),root=document.documentElement;
+    function done(){root.classList.remove('inked');el.style.clipPath=''}
+    if(matchMedia('(prefers-reduced-motion: reduce)').matches){done();return}
+    var w=innerWidth,h=innerHeight,ox=o.x*w,oy=o.y*h,REV=.7,
+        maxR=Math.max(Math.hypot(ox,oy),Math.hypot(w-ox,oy),Math.hypot(ox,h-oy),Math.hypot(w-ox,h-oy))*1.2;
+    function blob(R,ph){
+      var pts=[],n=120,k,a,q;
+      for(k=0;k<n;k++){a=k/n*Math.PI*2;q=R*(1+.07*Math.sin(3*a+ph)+.045*Math.sin(7*a-ph*1.7)+.03*Math.sin(11*a+ph*2.3));
+        pts.push((ox+Math.cos(a)*q).toFixed(1)+'px '+(oy+Math.sin(a)*q).toFixed(1)+'px')}
+      return pts}
+    var t0=performance.now();
+    (function tick(now){
+      var b=Math.min(1,(now-t0)/1000/REV),hole=blob((1-Math.pow(1-b,3))*maxR,4+b*4);
+      t.style.opacity=1-Math.min(1,b/.3);
+      el.style.clipPath='polygon(evenodd,0px 0px,'+w+'px 0px,'+w+'px '+h+'px,0px '+h+'px,0px 0px,'+hole.join(',')+','+hole[0]+')';
+      if(b<1)requestAnimationFrame(tick);else done();
+    })(t0);
+  };
+  window.__ink=o;
+})();
+</script>
+<div class="ink-in" id="inkin" aria-hidden="true"><span id="inktext">portfolio</span></div>
+<script>if(window.__ink){var _t=document.getElementById('inktext');_t.style.left=(__ink.x*100)+'vw';_t.style.top=(__ink.y*100)+'vh'}</script>
 
 <div class="wrap">
   <header class="top" id="top">
@@ -930,7 +966,7 @@ html.nonotes .cs [data-lv]::before{content:none;display:none}
   // sticky header height feeds the stack's stage
   var topEl=document.getElementById('top');
   function hh(){document.documentElement.style.setProperty('--hh',topEl.offsetHeight+'px')}
-  hh();hop(1);frame();addEventListener('resize',hh);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(hh);
+  hh();hop(1);frame();document.documentElement.classList.remove('pinwait');if(window.__inkReveal)requestAnimationFrame(window.__inkReveal);addEventListener('resize',hh);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(hh);
 
   // paper wave modal
   var EDGE=[103.7, 104.8, 106.8, 111.1, 118.1, 128.5, 142.8, 156.3, 159.6, 155.6, 150.7, 146.5, 140.3, 131.6, 123.8, 119.9, 122.6, 132.2, 143.6, 147.6, 146.6, 151.3, 156.5, 154.7, 146.7, 133.3, 120.9, 111.3, 102.3, 96.7, 98.4, 104.3, 108.1, 108.0, 104.3, 99.4, 95.2, 90.9, 89.5, 92.4, 98.7, 106.8, 115.7, 122.3, 128.4, 135.4, 140.8, 148.9, 160.2, 164.9, 162.7, 159.6, 155.7, 151.6, 147.6, 140.2, 129.5, 117.4, 105.1, 96.3, 92.1, 89.7, 86.0, 81.1, 78.1, 78.0, 77.8, 74.2, 68.9, 65.5, 67.4, 75.0, 85.9, 94.5, 97.3, 98.0, 100.9, 108.3, 121.4, 133.6, 138.1, 140.2, 145.1, 149.9, 153.3, 155.6, 155.2, 155.1, 152.7, 143.9, 134.5, 126.3, 117.5, 109.1, 103.8, 102.0, 100.8, 97.3, 94.3, 96.3, 100.2, 100.9, 98.3, 95.3, 95.7, 99.8, 105.0, 112.1, 119.7, 125.1, 129.1, 135.1, 140.9, 143.3, 140.7, 135.9, 136.3, 141.1, 143.2, 142.3, 139.3, 134.9, 131.0, 129.1, 129.7, 133.6, 142.8, 153.1, 158.7, 164.0, 172.6, 182.5, 194.8, 203.4, 203.3, 198.2, 190.4, 180.0, 170.0, 163.5, 160.1, 155.2, 146.7, 139.2, 136.0, 133.0, 126.2, 120.0, 113.4, 104.3, 98.1],SPOT={approach:.1,about:.5,contact:.9};
@@ -985,7 +1021,7 @@ html.nonotes .cs [data-lv]::before{content:none;display:none}
     var fig=document.createElement('figure');fig.className='ccover';fig.innerHTML='<img alt="">';fig.firstChild.src=c.img;fig.firstChild.alt=c.t+' cover';
     SL=[];slide([head,fig],c.t,'intro');
     Array.prototype.forEach.call(body.querySelectorAll('.cpart'),function(s){var h2=s.querySelector('h2');slide([s],h2?h2.textContent:'',s.classList.contains('ink')?'ink':'')});
-    levels();reveal();csArt.scrollTop=0;SI=-1;depth();sync();if(RSO){RSO.disconnect();SL.forEach(function(s){RSO.observe(s)})}
+    reveal();csArt.scrollTop=0;SI=-1;depth();sync();if(RSO){RSO.disconnect();SL.forEach(function(s){RSO.observe(s)})}
     csOpen=j;try{history.replaceState(null,'','#'+c.id)}catch(e){}
   }
   var SL=[],SI=-1,csLab=document.getElementById('cslab'),csPrev=document.getElementById('csprev'),csFwd=document.getElementById('csfwd');
@@ -994,12 +1030,6 @@ html.nonotes .cs [data-lv]::before{content:none;display:none}
     var w=document.createElement('div');w.className='sl';kids.forEach(function(k){w.appendChild(k)});s.appendChild(w);
     var h2=w.querySelector('.cpart>h2');if(h2){var tb=document.createElement('div');tb.className='ctab';tb.appendChild(h2);s.insertBefore(tb,w);s.classList.add('tabbed')}   // the title becomes a tab across the top
     csArt.appendChild(s);SL.push(s)}
-  // temporary: tag each text style with its level so the type scale can be reviewed (shown while Notes is on)
-  var LV=[['.cname','#'],['.ctab h2','##'],['.cpart h3','###'],['.pairs dt','####'],['.mods li b','####'],['.say','quote'],['.stats b','result'],
-    ['.clede','lede'],['.cpart>p:not(.say):not(.cap):not(.todo):not(.steps)','body'],['.cpart>ul>li','body'],
-    ['.cap','small'],['.cf figcaption','small'],['.pairs dd','small'],['.mods li span','small'],['.stats span','small'],['.steps span','small'],['.cfacts dd','small'],
-    ['.cmeta','label'],['.cfacts dt','label'],['.tbl thead th','label']];
-  function levels(){LV.forEach(function(l){Array.prototype.forEach.call(csArt.querySelectorAll(l[0]),function(e){if(!e.dataset.lv)e.dataset.lv=l[1]})})}
   var RVO=null;
   function reveal(){                                                                  // the top-level blocks of each slide fade up as they arrive
     var els=[];SL.forEach(function(s){Array.prototype.forEach.call(s.firstChild.children,function(k){
