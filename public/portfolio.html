@@ -214,7 +214,7 @@ section{display:flex;flex-direction:column;gap:26px;scroll-margin-top:24px}
 .todo-i{display:inline-block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;border:1px dashed var(--ink-soft);color:var(--ink-soft);border-radius:999px;padding:1px 9px}
 .chk{display:inline-block;font-family:var(--util);font-size:10px;line-height:1.5;letter-spacing:.12em;text-transform:uppercase;border:1px dashed currentColor;border-radius:999px;padding:0 7px;vertical-align:.25em;opacity:.7;white-space:nowrap}
 .say .chk{vertical-align:.6em}
-.nonotes .todo,.nonotes .todo-i,.nonotes .chk{display:none}
+.nonotes .todo,.nonotes .todo-i,.nonotes .chk,.nonotes .stats span .chk{display:none}
 .nonotes .cfacts div:has(dd>.todo-i:only-child){display:none}
 .nonotes .cpart:not(:has(>:not(h2):not(.todo))){display:none}
 .steps{display:flex;flex-wrap:wrap;gap:10px 30px;align-items:center}
@@ -351,7 +351,7 @@ document.documentElement.classList.add('pinwait');
     <a class="cshome" id="cshome" href="index.html" aria-label="le creatif, back to the intro"><span class="logo"></span></a>
     <nav aria-label="Sections"><a href="#work" id="csclose">Portfolio</a><a href="#approach" data-cwave="approach">Approach</a><a href="#about" data-cwave="about">About</a><a href="#contact" data-cwave="contact">Contact</a></nav>
   </div>
-  <button type="button" class="pill ghost csnotes" id="csnotes" aria-pressed="true" title="Show or hide the notes on what is still to add">Notes on</button>
+  <button type="button" class="pill ghost csnotes" id="csnotes" aria-pressed="false" hidden title="Show or hide the notes on what is still to add">Notes on</button>
   <article class="csart" id="csart" tabindex="-1"></article>
   <nav class="csnav" aria-label="Sections"><div>
     <button type="button" id="csprev" aria-label="Previous section">&uarr;</button>
@@ -1148,8 +1148,8 @@ document.documentElement.classList.add('pinwait');
     document.documentElement.classList.toggle('nonotes',!on);
     var b=document.getElementById('csnotes');b.setAttribute('aria-pressed',on);b.textContent=on?'Notes on':'Notes off';
     try{localStorage.setItem('lc-notes',on?'on':'off')}catch(e){}}
-  var nOn=true;try{nOn=localStorage.getItem('lc-notes')!=='off'}catch(e){}
-  notes(nOn);
+  // this version: notes always hidden, toggle removed
+  document.documentElement.classList.add('nonotes');
 
   var h=location.hash.slice(1),k=cards.map(function(c){return c.id}).indexOf(h);
   if(k>=0)setTimeout(function(){hop(k+1);frame();openCase(k)},60);else if(SPOT.hasOwnProperty(h))openWave(h);
